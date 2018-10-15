@@ -19,14 +19,16 @@
           zoom: 11,
           center: uluru
         });
-        var marker = new google.maps.Marker({
-          position: uluru,
-          map: map
-        });
-        var marker2 = new google.maps.Marker({
-          position: {lat: 33.7751, lng: -84.3962},
-          map: map
-        });
+
+        var xhttp = new XMLHttpRequest(); //creates an HTTP object
+        xhttp.onreadystatechange = function() { //callback function when a response comes back
+          if (this.readyState == 4 && this.status == 200) { //if response is OKAY == 200 then
+            //document.write(this.responseText)); //Do whatever
+            }
+          }
+        };
+        xhttp.open("GET", "temp.json", true); //asynchronously opens the connection to the location and sends the HTTP request after creating the response handler
+        xhttp.send();
       }
     </script>
     <script async defer
