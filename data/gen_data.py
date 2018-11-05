@@ -37,6 +37,7 @@ def start_server():
     cherrypy.config.update({'tools.response_headers.on': True})
     cherrypy.engine.start()
 
+
 if __name__ == '__main__':
     start_server()
 
