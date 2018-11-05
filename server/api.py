@@ -14,7 +14,8 @@ import os
 
 # Make the Flask app and connect the database
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.getcwd() + '\\buses.db'
+app.config['SQLALCHEMY_DATABASE_URI'] \
+        = 'sqlite:///' + os.path.join(os.getcwd(), "buses.py")
 db = SQLAlchemy(app)
 
 
@@ -95,8 +96,7 @@ def get_bus_data():
 
         # Calls the MARTA API
         bus_client = BusClient()
-        # it only specifies 1 route right now because the get all bus api id down... rip :/
-        buses = bus_client.buses(route=111)
+        buses = bus_client.buses()
         db.create_all()
 
         # Parses through the retrieved JSON and adds it to the database
