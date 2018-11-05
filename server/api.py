@@ -10,12 +10,13 @@
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
+from martapy import BusClient
 import os
 
 # Make the Flask app and connect the database
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] \
-        = 'sqlite:///' + os.path.join(os.getcwd(), "buses.py")
+        = 'sqlite:///' + os.path.join(os.getcwd(), "buses.db")
 db = SQLAlchemy(app)
 
 
@@ -72,8 +73,6 @@ class Bus(db.Model):
         return '<ID %r>' % self.id
 
 
-from martapy import BusClient
-
 def get_bus_data():
     '''
     Method that determines if a new call to the MARTA API should be done.
@@ -86,9 +85,9 @@ def get_bus_data():
 
     # Determines if the database is empty or if the first entry was added
     # more than 5 minutes before.
-    if len(Bus.query.all()) == 0 or datetime.now() \
-            > Bus.query.all()[0].updated_at \
-            + timedelta(minutes = 5):
+    if (len(Bus.query.all()) == 0
+        or datetime.now() > (Bus.query.all()[0].updated_at
+                              + timedelta(minutes = 5))):
 
         #  Clears the current database
         db.session.query(Bus).delete()
