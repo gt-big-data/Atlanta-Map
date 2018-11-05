@@ -52,7 +52,7 @@ def get_db_data():
 
 
 class Bus(db.Model):
-    """ Class representing a Bus from the marta API and all its attributes """
+    """ Class representing a Bus from the MARTA API and all its attributes """
 
     id = db.Column(db.Integer, primary_key=True)
     adherence = db.Column(db.String(10), nullable=False)
@@ -84,7 +84,7 @@ def get_bus_data():
     db.create_all()
 
     # Determines if the database is empty or if the first entry was added
-    # more than 5 minutes before.
+    # more than 5 minutes before
     if (len(Bus.query.all()) == 0
         or datetime.now() > (Bus.query.all()[0].updated_at
                               + timedelta(minutes = 5))):
@@ -98,7 +98,7 @@ def get_bus_data():
         buses = bus_client.buses()
         db.create_all()
 
-        # Parses through the retrieved JSON and adds it to the database
+        # Parses through the JSON for each bus and adds it to the database
         for b in buses:
             db.session.add(Bus(
                 adherence = b.adherence,
