@@ -20,23 +20,60 @@
           zoom: 11,
           center: georgiaTech
         });
-        var marker = new google.maps.Marker({
-          position: georgiaTech,
-          map: map
-        });
 
-        /*
         //TODO: Update to find a way to update existing markers on map
         
         var xhttp = new XMLHttpRequest();
+        var curr_markers = [];
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
-            var incidents = JSON.parse(this.responseText);
+            var data = JSON.parse(this.responseText);
+            var buses = data.buses;
+            var oldBuses = data.oldBuses;
+         	//    for (var i = 0; i < curr_markers.length; i++) {
+	        //   curr_markers[i].setMap(null);
+	        // }
+          for (var i = 0; i < curr_markers.length; i++) {
+            curr_markers[i].setMap(null);
+          }
+	        curr_markers = [];
+            for (var i = 0; i < 5; i++) {
+            	var pos = {lat: parseFloat(buses[i].LATITUDE), lng: parseFloat(buses[i].LONGITUDE)};
+            	console.log(pos);
+            	var marker = new google.maps.Marker({
+          			position: pos,
+          			map: map,
+          			icon: {
+    				      url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+    				    }
+        		});
+        		curr_markers.push(marker);
+            }
+            for (var i = 0; i < 5; i++) {
+            	var pos = {lat: parseFloat(oldBuses[i].LATITUDE), lng: parseFloat(oldBuses[i].LONGITUDE)};
+            	console.log(pos);
+            	var marker = new google.maps.Marker({
+          			position: pos,
+          			map: map,
+                icon: {
+                  url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                }
+        		});
+        		curr_markers.push(marker);
+            }
           }
         };
-        xhttp.open("GET", "temp.json", true);
+        xhttp.open("GET", "http://localhost:8080/GetBuses", true);
         xhttp.send();
-        */
+        
+        var ajax_call = function() {
+		      xhttp.open("GET", "http://localhost:8080/GetBuses", true);
+          xhttp.send();
+    		};
+
+    		var interval = 1000 * 60 * 0.3; // where X is your every X minutes
+
+    		setInterval(ajax_call, interval);
       };
     </script>
     <script async defer
