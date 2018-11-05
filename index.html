@@ -20,23 +20,35 @@
           zoom: 11,
           center: georgiaTech
         });
-        var marker = new google.maps.Marker({
-          position: georgiaTech,
-          map: map
-        });
 
-        /*
         //TODO: Update to find a way to update existing markers on map
         
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
-            var incidents = JSON.parse(this.responseText);
+            var buses = JSON.parse(this.responseText);
+            for (var i = 0; i < 5; i++) {
+            	var pos = {lat: parseFloat(buses[i].LATITUDE), lng: parseFloat(buses[i].LONGITUDE)};
+            	console.log(pos);
+            	var marker = new google.maps.Marker({
+          			position: pos,
+          			map: map
+        		});
+            }
           }
         };
-        xhttp.open("GET", "temp.json", true);
+        xhttp.open("GET", "http://localhost:8080/GetBuses", true);
         xhttp.send();
-        */
+        
+        var ajax_call = function() {
+		  xhttp.open("GET", "http://localhost:8080/GetBuses", true);
+          xhttp.send();
+		};
+
+		var interval = 1000 * 60 * 0.3; // where X is your every X minutes
+
+		setInterval(ajax_call, interval);
+
       };
     </script>
     <script async defer
