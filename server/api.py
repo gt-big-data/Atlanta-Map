@@ -125,6 +125,14 @@ def get_buses():
         return jsonify(get_bus_data()) #Transforms data stored
     else:
         return "405: Restricted method"
+    
+
+@app.route("/get_buses/<int:route>", methods=['GET'])
+def get_buses():
+    if request.method == 'GET':
+        return jsonify(get_bus_data()) #Transforms data stored
+    else:
+        return "405: Restricted method"    
 
 if __name__ == '__main__':
     app.run()
