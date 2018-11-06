@@ -22,13 +22,20 @@ CORS(app)
 db = SQLAlchemy(app)
 
 
-def get_db_data():
+def get_db_data(route):
     """
     Retrieves all the Bus data from the database and returns it in JSON format
     """
 
     # Queries for all Bus objects
-    buses = Bus.query.all()
+
+
+    if route is None:
+        buses = Bus.query.all()
+    else:
+        buses = Bus.query.filter_by(route=route)
+
+    
     final_list = []
 
     # Parses through every Bus in buses, turns the necessary data into a
@@ -75,7 +82,7 @@ class Bus(db.Model):
         return '<ID %r>' % self.id
 
 
-def get_bus_data():
+def get_bus_data(route):
     '''
     Method that determines if a new call to the MARTA API should be done.
     Returns a call to get_db_data()
@@ -91,6 +98,7 @@ def get_bus_data():
         or datetime.now() > (Bus.query.all()[0].updated_at
                               + timedelta(minutes = 5))):
 
+        
         #  Clears the current database
         db.session.query(Bus).delete()
         db.session.commit()
@@ -118,21 +126,21 @@ def get_bus_data():
             ))
         db.session.commit()
 
-    return get_db_data()
+    return get_db_data(route)
 
 
 @app.route("/get_buses", methods=['GET'])
 def get_buses():
     if request.method == 'GET':
-        return jsonify(get_bus_data()) #Transforms data stored
+        return jsonify(get_bus_data(None)) #Transforms data stored
     else:
         return "405: Restricted method"
     
 
 @app.route("/get_buses/<int:route>", methods=['GET'])
-def get_buses():
+def get_buses_by_route(route):
     if request.method == 'GET':
-        return jsonify(get_bus_data()) #Transforms data stored
+        return jsonify(get_bus_data(route)) #Transforms data stored
     else:
         return "405: Restricted method"    
 
