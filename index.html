@@ -21,22 +21,32 @@
           center: georgiaTech
         });
         var xhttp = new XMLHttpRequest();
-        var curr_markers = [];
+        curr_markers = {};
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             var buses = JSON.parse(this.responseText);
-	        for (var i = 0; i < curr_markers.length; i++) {
-	          curr_markers[i].setMap(null);
-	        }
-	        curr_markers = [];
+	        var new_markers = {};
             for (var i = 0; i < buses.length; i++) {
-            	var pos = {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)};
-            	var marker = new google.maps.Marker({
-          			position: pos,
-          			map: map
-        		});
-        		curr_markers.push(marker);
+            	var busID = parseInt(buses[i].vehicle);
+            	if (busID in curr_markers) {
+            		new_markers[busID] = curr_markers[busID];
+            		new_markers[busID].setPosition(new google.maps.LatLng(buses[i].latitude, buses[i].longitude));
+            		delete curr_markers[busID];
+            	} else {
+	            	var marker = new google.maps.Marker({
+	          			position: {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)},
+	          			map: map
+	        		});
+	        		new_markers[busID] = marker;
+            	}
+        		delete curr_markers[busID];
             }
+            var remove_list = Object.keys(curr_markers);
+            for (var i = 0; i < remove_list.length; i++) {
+	          	curr_markers[remove_list[i]].setMap(null);
+	          	delete curr_markers[remove_list[i]];
+	        }
+	        curr_markers = new_markers;
           }
         };
         xhttp.open("GET", "http://localhost:5000/get_buses", true);
