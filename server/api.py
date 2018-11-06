@@ -27,9 +27,7 @@ def get_db_data(route):
     Retrieves all the Bus data from the database and returns it in JSON format
     """
 
-    # Queries for all Bus objects
-
-
+    # Queries for Bus objects, depending on if route is passed to get_db_data()
     if route is None:
         buses = Bus.query.all()
     else:
