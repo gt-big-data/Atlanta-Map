@@ -12,11 +12,13 @@ from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from martapy import BusClient
 import os
+from flask_cors import CORS
 
 # Make the Flask app and connect the database
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] \
         = 'sqlite:///' + os.path.join(os.getcwd(), "buses.db")
+CORS(app)
 db = SQLAlchemy(app)
 
 

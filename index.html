@@ -31,7 +31,6 @@
 	        curr_markers = [];
             for (var i = 0; i < buses.length; i++) {
             	var pos = {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)};
-            	console.log(pos);
             	var marker = new google.maps.Marker({
           			position: pos,
           			map: map
@@ -48,7 +47,7 @@
           	xhttp.send();
     	};
 
-		var interval = 1000 * 60 * 0.3; // where X is your every X minutes
+		var interval = 1000 * 60 * 1; // where X is your every X minutes
 
 		setInterval(ajax_call, interval);
       };
