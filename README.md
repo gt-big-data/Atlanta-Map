@@ -7,8 +7,8 @@ This is a project by the [Gerogia Tech Big Data Club](https://github.com/gt-big-
 
 Use Python 3
 ```
-chmod +x start.sh #Adds execution permission to the scripts
-chmod +x stop.sh
-./start #to start both the UI(:8000) and API(:5000) servers
-./stop  #to stop both servers
+$ chmod +x start.sh #Adds execution permission to the scripts
+$ chmod +x stop.sh
+$ ./start #to start both the UI(:8000) and API(:5000) servers
+$ ./stop  #to stop both servers
 ```
