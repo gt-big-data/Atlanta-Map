@@ -3,64 +3,81 @@
   <head>
     <meta charset="utf-8">
     <title>BDC - MARTA</title>
-    <style>
-    #map {
-      height: 500px;
-      width: 100%;
-    }
-  </style>
-</head>
-<body>
-  <img src="marta.png" alt="MARTA Logo" height="100" width="300">
-  <div id="map"></div>
-  <script>
+    <link rel="stylesheet" href="index.css">
 
-    function initMap() {
-      var georgiaTech = {lat: 33.7756, lng: -84.3963};
-      var map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 11,
-        center: georgiaTech
-      });
+  </head>
+  <body>
+    <img src="marta.png" alt="MARTA Logo" height="100" width="300">
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        var georgiaTech = {lat: 33.7756, lng: -84.3963};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 11,
+          center: georgiaTech
+        });
 
-      var infowindow = new google.maps.InfoWindow();
+        var curr_markers = {};
+        var infowindow = new google.maps.InfoWindow();
 
-      var marker = new google.maps.Marker({
-        position: georgiaTech,
-        map: map
-      });
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            var buses = JSON.parse(this.responseText);
+            var new_markers = {};
+            for (var i = 0; i < buses.length; i++) {
+            	var busID = parseInt(buses[i].vehicle);
+            	if (busID in curr_markers) {
+            		new_markers[busID] = curr_markers[busID];
+            		new_markers[busID].setPosition(new google.maps.LatLng(buses[i].latitude, buses[i].longitude));
+            		delete curr_markers[busID];
+            	} else {
+	            	var marker = new google.maps.Marker({
+	          			position: {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)},
+	          			map: map
+                });
 
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          var buses = JSON.parse(this.responseText);
+                var latitude = parseFloat(buses[i].latitude);
+                var longitude = parseFloat(buses[i].longitude);
 
-          for(i = 0; i < buses.length; i++) {
-            var latitude = parseFloat(buses[i].LATITUDE);
-            var longitude = parseFloat(buses[i].LONGITUDE);
+                var message = '<div><strong>' + buses[i].timepoint
+                  + '</strong><br>@ ' + buses[i].msgtime + '<br>Route '
+                  + buses[i].route + '<br>' + '(' + latitude + ' , ' + longitude
+                  + ')' + '</div>';
 
-            var marker1 = new google.maps.Marker({
-              position: {lat: latitude, lng: longitude},
-              map: map
-            });
+                attachInfo(marker, message);
 
-            var message = '<div><strong>' + buses[i].TIMEPOINT
-              + '</strong><br>@ ' + buses[i].MSGTIME + '<br>Route '
-              + buses[i].ROUTE + '<br>' + '(' + latitude + ' , ' + longitude
-              + ')' + '</div>';
+            		new_markers[busID] = marker;
+            	}
+              delete curr_markers[busID];
+            }
 
-            attatchInfo(marker1, message);
+            var remove_list = Object.keys(curr_markers);
+            for (var i = 0; i < remove_list.length; i++) {
+	          	curr_markers[remove_list[i]].setMap(null);
+	          	delete curr_markers[remove_list[i]];
+            }
+            curr_markers = new_markers;
           }
-        }
         };
-        xhttp.open("GET", "busData.json", true);
+        xhttp.open("GET", "http://localhost:5000/get_buses", true);
         xhttp.send();
 
-        function attatchInfo(marker, info) {
-          google.maps.event.addListener(marker, 'click', function() {
-              infowindow.setContent(info);
-              infowindow.open(map, marker);
-            });
+
+        var ajax_call = function() {
+  	      xhttp.open("GET", "http://localhost:5000/get_buses", true);
+          xhttp.send();
         };
+
+        var attachInfo = function(marker, info) {
+          google.maps.event.addListener(marker, 'click', function() {
+            infowindow.setContent(info);
+            infowindow.open(map, marker);
+          });
+        };
+
+        var interval = 1000 * 60 * 1; // where X is your every X minutes
+        setInterval(ajax_call, interval);
       };
     </script>
     <script async defer
