@@ -25,9 +25,11 @@
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             var buses = JSON.parse(this.responseText);
-	        var new_markers = {};
+            var new_markers = {};
             for (var i = 0; i < buses.length; i++) {
+
             	var busID = parseInt(buses[i].vehicle);
+
             	if (busID in curr_markers) {
             		new_markers[busID] = curr_markers[busID];
             		new_markers[busID].setPosition(new google.maps.LatLng(buses[i].latitude, buses[i].longitude));
@@ -35,8 +37,10 @@
             	} else {
 	            	var marker = new google.maps.Marker({
 	          			position: {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)},
-	          			map: map
+	          			map: map,
+                  icon: "assets/bus.png"
 	        		});
+
 	        		new_markers[busID] = marker;
             	}
         		delete curr_markers[busID];
@@ -51,19 +55,19 @@
         };
         xhttp.open("GET", "http://localhost:5000/get_buses", true);
         xhttp.send();
-        
+
         var ajax_call = function() {
 		      xhttp.open("GET", "http://localhost:5000/get_buses", true);
-          	xhttp.send();
-    	};
+          xhttp.send();
+        };
 
-		var interval = 1000 * 60 * 1; // where X is your every X minutes
+        var interval = 1000 * 60 * 1; // where X is your every X minutes
 
-		setInterval(ajax_call, interval);
+        setInterval(ajax_call, interval);
       };
     </script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=[API_KEY]&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=[API-Key]&callback=initMap">
     </script>
     </body>
   </html>
