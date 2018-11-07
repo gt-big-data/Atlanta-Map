@@ -3,12 +3,8 @@
   <head>
     <meta charset="utf-8">
     <title>BDC - MARTA</title>
-    <style>
-       #map {
-        height: 500px;
-        width: 100%;
-       }
-    </style>
+    <link rel="stylesheet" href="index.css">
+
   </head>
   <body>
     <img src="marta.png" alt="MARTA Logo" height="100" width="300">
@@ -20,12 +16,15 @@
           zoom: 11,
           center: georgiaTech
         });
+
+        var curr_markers = {};
+        var infowindow = new google.maps.InfoWindow();
+
         var xhttp = new XMLHttpRequest();
-        curr_markers = {};
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             var buses = JSON.parse(this.responseText);
-	        var new_markers = {};
+            var new_markers = {};
             for (var i = 0; i < buses.length; i++) {
             	var busID = parseInt(buses[i].vehicle);
             	if (busID in curr_markers) {
@@ -36,34 +35,53 @@
 	            	var marker = new google.maps.Marker({
 	          			position: {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)},
 	          			map: map
-	        		});
-	        		new_markers[busID] = marker;
+                });
+
+                var latitude = parseFloat(buses[i].latitude);
+                var longitude = parseFloat(buses[i].longitude);
+
+                var message = '<div><strong>' + buses[i].timepoint
+                  + '</strong><br>@ ' + buses[i].msgtime + '<br>Route '
+                  + buses[i].route + '<br>' + '(' + latitude + ' , ' + longitude
+                  + ')' + '</div>';
+
+                attachInfo(marker, message);
+
+            		new_markers[busID] = marker;
             	}
-        		delete curr_markers[busID];
+              delete curr_markers[busID];
             }
+
             var remove_list = Object.keys(curr_markers);
             for (var i = 0; i < remove_list.length; i++) {
 	          	curr_markers[remove_list[i]].setMap(null);
 	          	delete curr_markers[remove_list[i]];
-	        }
-	        curr_markers = new_markers;
+            }
+            curr_markers = new_markers;
           }
         };
         xhttp.open("GET", "http://localhost:5000/get_buses", true);
         xhttp.send();
-        
+
+
         var ajax_call = function() {
-		      xhttp.open("GET", "http://localhost:5000/get_buses", true);
-          	xhttp.send();
-    	};
+  	      xhttp.open("GET", "http://localhost:5000/get_buses", true);
+          xhttp.send();
+        };
 
-		var interval = 1000 * 60 * 1; // where X is your every X minutes
+        var attachInfo = function(marker, info) {
+          google.maps.event.addListener(marker, 'click', function() {
+            infowindow.setContent(info);
+            infowindow.open(map, marker);
+          });
+        };
 
-		setInterval(ajax_call, interval);
+        var interval = 1000 * 60 * 1; // where X is your every X minutes
+        setInterval(ajax_call, interval);
       };
     </script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=[API_KEY]&callback=initMap">
-    </script>
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
+  </script>
     </body>
   </html>
