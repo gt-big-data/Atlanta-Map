@@ -1,7 +1,20 @@
-<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
     <title>BDC - MARTA</title>
   </head>
   <link rel="stylesheet" href="index.css">
@@ -31,7 +44,23 @@
       };
     </script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=[API_KEY]&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
     </script>
-    </body>
-  </html>
+
+    <div id="route-filter" class="list-group" style="max-height: 20%; max-width: 30%; overflow: scroll; border: 1px solid black"></div>    
+    <script>
+        function populateFilter(contents){
+            var filter = document.getElementById("route-filter")
+            for (i = 0; i < contents.length; i++){
+                var btn = document.createElement("BUTTON")
+                btn.setAttribute("type", "button")
+                btn.setAttribute("class", "list-group-item list-group-item-action")
+                btn.append(contents[i])
+                filter.appendChild(btn)
+            }
+        }
+        populateFilter(['1','2','3','4','5','6','7','8','9','10'])
+    </script>
+
+</body>
+</html>
