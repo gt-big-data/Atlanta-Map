@@ -41,9 +41,11 @@
                 var longitude = parseFloat(buses[i].longitude);
 
                 var message = '<div><strong>' + buses[i].timepoint
-                  + '</strong><br>@ ' + buses[i].msgtime + '<br>Route '
+                  + '</strong><br>@ ' + buses[i].msg_time + '<br>Route '
                   + buses[i].route + '<br>' + '(' + latitude + ' , ' + longitude
                   + ')' + '</div>';
+
+                console.log(buses[i]);
 
                 attachInfo(marker, message);
 
