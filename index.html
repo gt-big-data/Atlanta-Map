@@ -1,14 +1,64 @@
 <!DOCTYPE html>
 <html>
   <head>
+
     <meta charset="utf-8">
-    <title>BDC - MARTA</title>
-    <link rel="stylesheet" href="index.css">
+
+    <!-- Title & Favicon -->
+    <title>MARTA Bus Optimization</title>
+    <link rel="shortcut icon" href="images/marta-square.png">
+
+    <!-- Bootstrap meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="css-dist/styles.min.css" />
+
+    <!-- D3 -->
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous" defer></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js" integrity="sha384-lZmvU/TzxoIQIOD9yQDEpvxp6wEU32Fy0ckUgOH4EIlMOCdR823rg4+3gWRwnX1M" crossorigin="anonymous" defer></script>
+
+    <!-- Custom JS -->
+    <script src="js/main.min.js" defer></script>
+
+    <style>
+       #map {
+        height: 500px;
+        width: 100%;
+       }
+       body {
+         background: #0093D0 !important;
+       }
+       .yellow {
+         background-color: #FEC524;
+       }
+       .blue {
+         color: #0093D0
+       }
+    </style>
 
   </head>
   <body>
-    <img src="marta.png" alt="MARTA Logo" height="100" width="300">
+
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+      <img src="images/marta.png" alt="MARTA Logo" height="33" width="100">
+    </nav>
+
+    <div class="container-fluid yellow pb-1 pt-3">
+      <h1 class="display-4 text-center">MARTA Bus Optimizer</h1>
+      <p class="text-center">A project made by the <a class="blue" href="https://github.com/gt-big-data/marta-map/">GT Big Data Club</a> to optimize the MARTA bus transit system.</p>
+    </div>
+
     <div id="map"></div>
+
     <script>
       function initMap() {
         var georgiaTech = {lat: 33.7756, lng: -84.3963};
@@ -16,74 +66,23 @@
           zoom: 11,
           center: georgiaTech
         });
-
-        var curr_markers = {};
-        var infowindow = new google.maps.InfoWindow();
+        var marker = new google.maps.Marker({
+          position: georgiaTech,
+          map: map
+        });
 
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
-            var buses = JSON.parse(this.responseText);
-            var new_markers = {};
-            for (var i = 0; i < buses.length; i++) {
-            	var busID = parseInt(buses[i].vehicle);
-            	if (busID in curr_markers) {
-            		new_markers[busID] = curr_markers[busID];
-            		new_markers[busID].setPosition(new google.maps.LatLng(buses[i].latitude, buses[i].longitude));
-            		delete curr_markers[busID];
-            	} else {
-	            	var marker = new google.maps.Marker({
-	          			position: {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)},
-	          			map: map
-                });
-
-                var latitude = parseFloat(buses[i].latitude);
-                var longitude = parseFloat(buses[i].longitude);
-
-                var message = '<div><strong>' + buses[i].timepoint
-                  + '</strong><br>@ ' + buses[i].msg_time + '<br>Route '
-                  + buses[i].route + '<br>' + '(' + latitude + ' , ' + longitude
-                  + ')' + '</div>';
-
-                console.log(buses[i]);
-
-                attachInfo(marker, message);
-
-            		new_markers[busID] = marker;
-            	}
-              delete curr_markers[busID];
-            }
-
-            var remove_list = Object.keys(curr_markers);
-            for (var i = 0; i < remove_list.length; i++) {
-	          	curr_markers[remove_list[i]].setMap(null);
-	          	delete curr_markers[remove_list[i]];
-            }
-            curr_markers = new_markers;
+            var incidents = JSON.parse(this.responseText);
           }
         };
-        xhttp.open("GET", "http://localhost:5000/get_buses", true);
+        xhttp.open("GET", "temp.json", true);
         xhttp.send();
-
-
-        var ajax_call = function() {
-  	      xhttp.open("GET", "http://localhost:5000/get_buses", true);
-          xhttp.send();
-        };
-
-        var attachInfo = function(marker, info) {
-          google.maps.event.addListener(marker, 'click', function() {
-            infowindow.setContent(info);
-            infowindow.open(map, marker);
-          });
-        };
-
-        var interval = 1000 * 60 * 1; // where X is your every X minutes
-        setInterval(ajax_call, interval);
       };
     </script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=[API-KEY]&callback=initMap">
-  </script>
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
+    </script>
     </body>
   </html>
