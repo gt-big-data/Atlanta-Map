@@ -1,1 +1,3 @@
-python3 -m http.server & python3 server/api.py &
+start python3 -m http.server -multiwindow
+python3 server/api.py
+
