@@ -78,6 +78,26 @@
           });
         };
 
+        var getDistance = function(start_long, start_lat, end_long, end_lat) {
+            // Option 1
+            url = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
+            url += 'origins=' + start_long + ',' + start_lat + '&destinations='
+                + end_long + ',' + end_lat + '&key=' + key;
+            r = requests.get(url);
+            js = r.json();
+
+            //Option 2
+            var service = new google.maps.DistanceMatrixService();
+            service.getDistanceMatrix({
+                origins: start,
+                destinations: end,
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.IMPERIAL
+            }, callback);
+            // Call Back not implemented yet
+        }
+        getDistance(40, 70, 90, 100);
+
         var interval = 1000 * 60 * 1; // where X is your every X minutes
         setInterval(ajax_call, interval);
       };
