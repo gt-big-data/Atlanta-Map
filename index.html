@@ -34,17 +34,9 @@
         height: 500px;
         width: 100%;
        }
-       body {
-         background: #0093D0 !important;
-       }
-       .yellow {
-         background-color: #FEC524;
-       }
-       .blue {
-         color: #0093D0
-       }
     </style>
 
+    <link rel="stylesheet" type="text/css" href="day.css" id="time-stylesheet">
   </head>
   <body>
 
@@ -73,9 +65,8 @@
               Colors
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">Light Mode</a>
-              <a class="dropdown-item" href="#">Dark Mode</a>
-              <!--  WILL ADD A SCRIPT TO CHANGE THE COLORS OF GOOGLE MAPS  -->
+              <a class="dropdown-item" href="#" id="day" onclick="changeDay()">Light Mode</a>
+              <a class="dropdown-item" href="#" id="night" onclick="changeNight()">Dark Mode</a>
             </div>
           </li>
         </ul>
@@ -113,6 +104,14 @@
     </script>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
+    </script>
+    <script>
+        function changeDay() {
+          document.getElementById("time-stylesheet").setAttribute("href", "day.css");
+        }
+        function changeNight() {
+          document.getElementById("time-stylesheet").setAttribute("href", "night.css");
+        }
     </script>
     </body>
   </html>
