@@ -40,8 +40,8 @@
   </head>
   <body>
 
-    <nav class="navbar navbar-expand-sm navbar-light bg-light">
-      <a class="navbar-brand" href="#"><img src="marta.png" alt="MARTA Logo" height="33" width="100"></a>
+    <nav id="headerMarta" class="navbar navbar-expand-sm navbar-light bg-light">
+      <a class="navbar-brand" href="#"><img id="navLogo" src="marta.png" alt="MARTA Logo" height="33" width="100"></a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -81,11 +81,15 @@
     <div id="map"></div>
 
     <script>
+    var map;
       function initMap() {
         var georgiaTech = {lat: 33.7756, lng: -84.3963};
-        var map = new google.maps.Map(document.getElementById('map'), {
+        map = new google.maps.Map(document.getElementById('map'), {
           zoom: 11,
-          center: georgiaTech
+          center: georgiaTech,
+          mapTypeControlOptions: {
+            mapTypeIds: ['styled_map']
+          }
         });
         var marker = new google.maps.Marker({
           position: georgiaTech,
@@ -101,17 +105,111 @@
         xhttp.open("GET", "temp.json", true);
         xhttp.send();
       };
+      function changeDay() {
+        document.getElementById("time-stylesheet").setAttribute("href", "day.css");
+        document.getElementById('headerMarta').className = "navbar navbar-expand-sm navbar-light bg-light";
+        document.getElementById('navLogo').src = "marta.png";
+        var dayMapType = new google.maps.StyledMapType(
+          [],
+        {name: 'Day Map'});
+
+        map.mapTypes.set('styled_map', dayMapType);
+        map.setMapTypeId('styled_map');
+      }
+      function changeNight() {
+        document.getElementById("time-stylesheet").setAttribute("href", "night.css");
+        document.getElementById('headerMarta').className = "navbar navbar-expand-sm navbar-dark bg-dark";
+        document.getElementById('navLogo').src = "marta-white.png";
+        var nightMapType = new google.maps.StyledMapType(
+          [
+          {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
+          {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
+          {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
+          {
+            featureType: 'administrative.locality',
+            elementType: 'labels.text.fill',
+            stylers: [{color: '#d59563'}]
+          },
+          {
+            featureType: 'poi',
+            elementType: 'labels.text.fill',
+            stylers: [{color: '#d59563'}]
+          },
+          {
+            featureType: 'poi.park',
+            elementType: 'geometry',
+            stylers: [{color: '#263c3f'}]
+          },
+          {
+            featureType: 'poi.park',
+            elementType: 'labels.text.fill',
+            stylers: [{color: '#6b9a76'}]
+          },
+          {
+            featureType: 'road',
+            elementType: 'geometry',
+            stylers: [{color: '#38414e'}]
+          },
+          {
+            featureType: 'road',
+            elementType: 'geometry.stroke',
+            stylers: [{color: '#212a37'}]
+          },
+          {
+            featureType: 'road',
+            elementType: 'labels.text.fill',
+            stylers: [{color: '#9ca5b3'}]
+          },
+          {
+            featureType: 'road.highway',
+            elementType: 'geometry',
+            stylers: [{color: '#746855'}]
+          },
+          {
+            featureType: 'road.highway',
+            elementType: 'geometry.stroke',
+            stylers: [{color: '#1f2835'}]
+          },
+          {
+            featureType: 'road.highway',
+            elementType: 'labels.text.fill',
+            stylers: [{color: '#f3d19c'}]
+          },
+          {
+            featureType: 'transit',
+            elementType: 'geometry',
+            stylers: [{color: '#2f3948'}]
+          },
+          {
+            featureType: 'transit.station',
+            elementType: 'labels.text.fill',
+            stylers: [{color: '#d59563'}]
+          },
+          {
+            featureType: 'water',
+            elementType: 'geometry',
+            stylers: [{color: '#17263c'}]
+          },
+          {
+            featureType: 'water',
+            elementType: 'labels.text.fill',
+            stylers: [{color: '#515c6d'}]
+          },
+          {
+            featureType: 'water',
+            elementType: 'labels.text.stroke',
+            stylers: [{color: '#17263c'}]
+          }
+        ],
+        {name: 'Night Map'});
+
+        map.mapTypes.set('styled_map', nightMapType);
+        map.setMapTypeId('styled_map');
+      }
+
     </script>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
-    </script>
-    <script>
-        function changeDay() {
-          document.getElementById("time-stylesheet").setAttribute("href", "day.css");
-        }
-        function changeNight() {
-          document.getElementById("time-stylesheet").setAttribute("href", "night.css");
-        }
     </script>
     </body>
   </html>
