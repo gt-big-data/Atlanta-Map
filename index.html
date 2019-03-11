@@ -1,40 +1,20 @@
 <!DOCTYPE html>
 <html>
   <head>
-
     <meta charset="utf-8">
 
-    <!-- Title & Favicon -->
     <title>MARTA Bus Optimization</title>
     <link rel="shortcut icon" href="marta-square.png">
 
-    <!-- Bootstrap meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-
-    <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="css-dist/styles.min.css" />
-
-    <!-- D3 -->
     <script src='https://d3js.org/d3.v4.min.js'></script>
-
-    <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous" defer></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js" integrity="sha384-lZmvU/TzxoIQIOD9yQDEpvxp6wEU32Fy0ckUgOH4EIlMOCdR823rg4+3gWRwnX1M" crossorigin="anonymous" defer></script>
-
-    <!-- Custom JS -->
     <script src="js/main.min.js" defer></script>
-
-    <style>
-       #map {
-        height: 500px;
-        width: 100%;
-       }
-    </style>
 
     <link rel="stylesheet" type="text/css" href="day.css" id="time-stylesheet">
   </head>
@@ -80,134 +60,8 @@
 
     <div id="map"></div>
 
-    <script>
-    var map;
-      function initMap() {
-        var georgiaTech = {lat: 33.7756, lng: -84.3963};
-        map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 11,
-          center: georgiaTech,
-          mapTypeControlOptions: {
-            mapTypeIds: ['styled_map']
-          }
-        });
-        var marker = new google.maps.Marker({
-          position: georgiaTech,
-          map: map
-        });
+    <script src="map.js"></script>
 
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            var incidents = JSON.parse(this.responseText);
-          }
-        };
-        xhttp.open("GET", "temp.json", true);
-        xhttp.send();
-      };
-      function changeDay() {
-        document.getElementById("time-stylesheet").setAttribute("href", "day.css");
-        document.getElementById('headerMarta').className = "navbar navbar-expand-sm navbar-light bg-light";
-        document.getElementById('navLogo').src = "marta.png";
-        var dayMapType = new google.maps.StyledMapType(
-          [],
-        {name: 'Day Map'});
-
-        map.mapTypes.set('styled_map', dayMapType);
-        map.setMapTypeId('styled_map');
-      }
-      function changeNight() {
-        document.getElementById("time-stylesheet").setAttribute("href", "night.css");
-        document.getElementById('headerMarta').className = "navbar navbar-expand-sm navbar-dark bg-dark";
-        document.getElementById('navLogo').src = "marta-white.png";
-        var nightMapType = new google.maps.StyledMapType(
-          [
-          {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
-          {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
-          {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
-          {
-            featureType: 'administrative.locality',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#d59563'}]
-          },
-          {
-            featureType: 'poi',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#d59563'}]
-          },
-          {
-            featureType: 'poi.park',
-            elementType: 'geometry',
-            stylers: [{color: '#263c3f'}]
-          },
-          {
-            featureType: 'poi.park',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#6b9a76'}]
-          },
-          {
-            featureType: 'road',
-            elementType: 'geometry',
-            stylers: [{color: '#38414e'}]
-          },
-          {
-            featureType: 'road',
-            elementType: 'geometry.stroke',
-            stylers: [{color: '#212a37'}]
-          },
-          {
-            featureType: 'road',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#9ca5b3'}]
-          },
-          {
-            featureType: 'road.highway',
-            elementType: 'geometry',
-            stylers: [{color: '#746855'}]
-          },
-          {
-            featureType: 'road.highway',
-            elementType: 'geometry.stroke',
-            stylers: [{color: '#1f2835'}]
-          },
-          {
-            featureType: 'road.highway',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#f3d19c'}]
-          },
-          {
-            featureType: 'transit',
-            elementType: 'geometry',
-            stylers: [{color: '#2f3948'}]
-          },
-          {
-            featureType: 'transit.station',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#d59563'}]
-          },
-          {
-            featureType: 'water',
-            elementType: 'geometry',
-            stylers: [{color: '#17263c'}]
-          },
-          {
-            featureType: 'water',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#515c6d'}]
-          },
-          {
-            featureType: 'water',
-            elementType: 'labels.text.stroke',
-            stylers: [{color: '#17263c'}]
-          }
-        ],
-        {name: 'Night Map'});
-
-        map.mapTypes.set('styled_map', nightMapType);
-        map.setMapTypeId('styled_map');
-      }
-
-    </script>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
     </script>
