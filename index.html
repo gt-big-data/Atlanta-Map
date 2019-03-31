@@ -16,6 +16,9 @@
           zoom: 11,
           center: georgiaTech
         });
+    
+        var transitLayer = new google.maps.TransitLayer();
+        transitLayer.setMap(map);
 
         var curr_markers = {};
         var infowindow = new google.maps.InfoWindow();
@@ -64,6 +67,34 @@
         };
         xhttp.open("GET", "http://localhost:5000/get_buses", true);
         xhttp.send();
+        
+        var xhttp2 = new XMLHttpRequest();
+        xhttp2.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            var incidents = JSON.parse(this.responseText);
+                var arr = JSON.parse(this.responseText);
+                var list = [];
+                for (var i = 0; i < arr.length; i++) {
+                    if (arr[i].shape_pt_sequence == 1) {
+                        var flightPath = new google.maps.Polyline({
+                            path: list,
+                            geodesic: true,
+                            strokeColor: '#FF0000',
+                            strokeOpacity: 1.0,
+                            strokeWeight: 2
+                        });     
+                        flightPath.setMap(map);
+                        list = [];
+                    } else {
+                    list.push({lat: arr[i].shape_pt_lat, lng: arr[i].shape_pt_lon});    
+                    }
+
+
+            }
+          }
+        };
+        xhttp2.open("GET", "routes.json", true);
+        xhttp2.send();
 
 
         var ajax_call = function() {
@@ -83,7 +114,7 @@
       };
     </script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=[API-KEY]&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
   </script>
     </body>
   </html>
