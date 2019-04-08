@@ -26,7 +26,9 @@
             var buses = JSON.parse(this.responseText);
             var new_markers = {};
             for (var i = 0; i < buses.length; i++) {
+
             	var busID = parseInt(buses[i].vehicle);
+
             	if (busID in curr_markers) {
             		new_markers[busID] = curr_markers[busID];
             		new_markers[busID].setPosition(new google.maps.LatLng(buses[i].latitude, buses[i].longitude));
@@ -34,7 +36,8 @@
             	} else {
 	            	var marker = new google.maps.Marker({
 	          			position: {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)},
-	          			map: map
+	          			map: map,
+                  icon: "assets/BusIcon.svg"
                 });
 
                 var latitude = parseFloat(buses[i].latitude);
