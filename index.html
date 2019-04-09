@@ -5,10 +5,14 @@
     <title>BDC - MARTA</title>
     <link rel="stylesheet" href="index.css">
 
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
   </head>
   <body>
     <img src="marta.png" alt="MARTA Logo" height="100" width="300">
     <div id="map"></div>
+    <button id='removeBtn'> Remove Shapes</button>
     <script>
       function initMap() {
         var georgiaTech = {lat: 33.7756, lng: -84.3963};
@@ -17,19 +21,19 @@
           center: georgiaTech
         });
 
-        var transitLayer = new google.maps.TransitLayer();
-        transitLayer.setMap(map);
         var curr_markers = {};
         var infowindow = new google.maps.InfoWindow();
+
+        //need this variable in order for geojsons to work correctly
+        var features = null;
+
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             var buses = JSON.parse(this.responseText);
             var new_markers = {};
             for (var i = 0; i < buses.length; i++) {
-
             	var busID = parseInt(buses[i].vehicle);
-
             	if (busID in curr_markers) {
             		new_markers[busID] = curr_markers[busID];
             		new_markers[busID].setPosition(new google.maps.LatLng(buses[i].latitude, buses[i].longitude));
@@ -37,21 +41,40 @@
             	} else {
 	            	var marker = new google.maps.Marker({
 	          			position: {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)},
-	          			map: map,
-                  icon: "assets/BusIcon.svg"
-                });
-                var latitude = parseFloat(buses[i].latitude);
-                var longitude = parseFloat(buses[i].longitude);
-                var message = '<div><strong>' + buses[i].timepoint
-                  + '</strong><br>@ ' + buses[i].msg_time + '<br>Route '
-                  + buses[i].route + '<br>' + '(' + latitude + ' , ' + longitude
-                  + ')' + '</div>';
-                console.log(buses[i]);
-                attachInfo(marker, message);
+	          			map: map
+	                });
+
+	            	//each marker has a listener 
+	                marker.addListener('click', function() {
+			    		if (features != null) {
+			    			for (var i = 0; i < features.length; i++)
+			   		     		map.data.remove(features[i]);
+			    		}
+
+			    		//Replace the url below with the database call
+			    		//I think you'll have to format the url string yourself using the marker's position data
+			    		$.getJSON('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/atlanta.geojson', function (data) {
+			    			features = map.data.addGeoJson(data);
+			    		});
+			    	});
+
+	                var latitude = parseFloat(buses[i].latitude);
+	                var longitude = parseFloat(buses[i].longitude);
+
+	                var message = '<div><strong>' + buses[i].timepoint
+	                  + '</strong><br>@ ' + buses[i].msg_time + '<br>Route '
+	                  + buses[i].route + '<br>' + '(' + latitude + ' , ' + longitude
+	                  + ')' + '</div>';
+
+	                console.log(buses[i]);
+
+	                attachInfo(marker, message);
+
             		new_markers[busID] = marker;
             	}
               delete curr_markers[busID];
             }
+
             var remove_list = Object.keys(curr_markers);
             for (var i = 0; i < remove_list.length; i++) {
 	          	curr_markers[remove_list[i]].setMap(null);
@@ -60,38 +83,37 @@
             curr_markers = new_markers;
           }
         };
+
+        //Test marker to see if clickable action worked, not necessary anymore
+        // myLatlng = {lat: 33.7490, lng: -84.3880};
+
+        // var marker = new google.maps.Marker({
+        //   position: myLatlng,
+        //   map: map
+        // });
+
+    	//added remove button in case the user doens't want to see any geojsons displayed
+    	google.maps.event.addDomListener(document.getElementById('removeBtn'), 'click', function () {
+    		if (features != null) {
+    			for (var i = 0; i < features.length; i++)
+   		    		map.data.remove(features[i]);
+    		}
+    	}); 
+
+        map.data.setStyle({
+          icon: 'atlanta.json',
+          fillColor: 'green'
+        });
+
         xhttp.open("GET", "http://localhost:5000/get_buses", true);
         xhttp.send();
 
-        var xhttp2 = new XMLHttpRequest();
-        xhttp2.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            var incidents = JSON.parse(this.responseText);
-                var arr = JSON.parse(this.responseText);
-                var list = [];
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i].shape_pt_sequence == 1) {
-                        var flightPath = new google.maps.Polyline({
-                            path: list,
-                            geodesic: true,
-                            strokeColor: '#FF0000',
-                            strokeOpacity: 1.0,
-                            strokeWeight: 2
-                        });
-                        flightPath.setMap(map);
-                        list = [];
-                    } else {
-                    list.push({lat: arr[i].shape_pt_lat, lng: arr[i].shape_pt_lon});
-                    }
-            }
-          }
-        };
-        xhttp2.open("GET", "routes.json", true);
-        xhttp2.send();
+
         var ajax_call = function() {
   	      xhttp.open("GET", "http://localhost:5000/get_buses", true);
           xhttp.send();
         };
+
         var attachInfo = function(marker, info) {
           google.maps.event.addListener(marker, 'click', function() {
             infowindow.setContent(info);
@@ -99,32 +121,33 @@
           });
         };
 
-        var getDistance = function(start_long, start_lat, end_long, end_lat) {
-            // Option 1
-            url = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
-            url += 'origins=' + start_long + ',' + start_lat + '&destinations='
-                + end_long + ',' + end_lat + '&key=' + key;
-            r = requests.get(url);
-            js = r.json();
+        ////not sure what this does 
+        // var getDistance = function(start_long, start_lat, end_long, end_lat) {
+        //     // Option 1
+        //     url = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
+        //     url += 'origins=' + start_long + ',' + start_lat + '&destinations='
+        //         + end_long + ',' + end_lat + '&key=' + 'AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU';
+        //     r = requests.get(url);
+        //     js = r.json();
 
-            //Option 2
-            var service = new google.maps.DistanceMatrixService();
-            service.getDistanceMatrix({
-                origins: start,
-                destinations: end,
-                travelMode: google.maps.TravelMode.DRIVING,
-                unitSystem: google.maps.UnitSystem.IMPERIAL
-            }, callback);
-            // Call Back not implemented yet
-        }
-        getDistance(40, 70, 90, 100);
+        //     //Option 2
+        //     var service = new google.maps.DistanceMatrixService();
+        //     service.getDistanceMatrix({
+        //         origins: start,
+        //         destinations: end,
+        //         travelMode: google.maps.TravelMode.DRIVING,
+        //         unitSystem: google.maps.UnitSystem.IMPERIAL
+        //     }, callback);
+        //     // Call Back not implemented yet
+        // }
+        // getDistance(40, 70, 90, 100);
 
         var interval = 1000 * 60 * 1; // where X is your every X minutes
         setInterval(ajax_call, interval);
       };
     </script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=[]&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
   </script>
     </body>
   </html>
