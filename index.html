@@ -63,6 +63,8 @@
         xhttp.open("GET", "http://localhost:5000/get_buses", true);
         xhttp.send();
 
+        var colors = ['#ec2527', '#ffa500', '#0093d0', '#69bd47'];
+
         var xhttp2 = new XMLHttpRequest();
         xhttp2.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
@@ -74,7 +76,7 @@
                         var flightPath = new google.maps.Polyline({
                             path: list,
                             geodesic: true,
-                            strokeColor: '#FF0000',
+                            strokeColor: colors[Math.floor(Math.random() * 4)],
                             strokeOpacity: 1.0,
                             strokeWeight: 2
                         });
@@ -124,7 +126,7 @@
       };
     </script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=[]&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
   </script>
     </body>
   </html>
