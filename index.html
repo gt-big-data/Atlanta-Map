@@ -13,9 +13,11 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="css-dist/styles.min.css" />
     <script src='https://d3js.org/d3.v4.min.js'></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous" defer></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js" integrity="sha384-lZmvU/TzxoIQIOD9yQDEpvxp6wEU32Fy0ckUgOH4EIlMOCdR823rg4+3gWRwnX1M" crossorigin="anonymous" defer></script>
     <script src="js/main.min.js" defer></script>
+    <script src="https://d3js.org/d3-queue.v3.min.js"></script>
     <!-- <link rel="stylesheet" type="text/css" href="day.css" id="time-stylesheet"> -->
   </head>
   <body>
@@ -33,13 +35,13 @@
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Bus Routes
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">Bus 1</a>
-              <a class="dropdown-item" href="#">Bus 2</a>
+            <div id="dropdown" class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <!-- <a class="dropdown-item" href="#">Bus 1</a>
+              <a class="dropdown-item" href="#">Bus 2</a> -->
               <!--  CAN ADD MORE BUS ROUTES HERE  -->
             </div>
           </li>
-          <li class="nav-item dropdown">
+          <!-- <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Colors
             </a>
@@ -47,33 +49,70 @@
               <a class="dropdown-item" href="#" id="day" onclick="changeDay()">Light Mode</a>
               <a class="dropdown-item" href="#" id="night" onclick="changeNight()">Dark Mode</a>
             </div>
-          </li>
+          </li> -->
         </ul>
       </div>
     </nav>
     <div id="map"></div>
-    <script src="map.js"></script>
+    <!-- <script src="map.js"></script> -->
+    <button id='enable' class='button'> Enable Coverages</button>
+    <button id='removeBtn' class='button'> Remove Coverage</button>
     <script>
+      // // this will save opacity values and set them to 0, and rebound the polygon to the map
+      // google.maps.Polygon.prototype.hide = function(){
+      //     if (this._visible) {
+      //         this._visible = false;
+      //         this._strokeOpacity = this.strokeOpacity;
+      //         this._fillOpacity = this.fillOpacity;
+      //         this.strokeOpacity = 0;
+      //         this.fillOpacity = 0;
+      //         this.setMap(this.map);
+      //     }
+      // }
+      //
+      // // this will restore opacity values. and rebound the polygon to the map
+      // google.maps.Polygon.prototype.show = function() {
+      //     if (!this._visible) {
+      //         this._visible = true;
+      //         this.strokeOpacity = this._strokeOpacity;
+      //         this.fillOpacity = this._fillOpacity;
+      //         this.setMap(this.map);
+      //     }
+      // }
+      function populateDropDown() {
+          var dropdown = document.getElementById("dropdown");
+          var i;
+          for (i = 1; i < 14; i++) {
+            var option = document.createElement('a');
+            option.setAttribute('class', 'dropdown-item');
+            option.setAttribute('href', '#');
+            option.innerText = 'Route ' + i;
+            dropdown.appendChild(option);
+          }
+      }
+
       function initMap() {
+        populateDropDown();
         var georgiaTech = {lat: 33.7756, lng: -84.3963};
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 11,
           center: georgiaTech
         });
 
-        var transitLayer = new google.maps.TransitLayer();
-        transitLayer.setMap(map);
         var curr_markers = {};
         var infowindow = new google.maps.InfoWindow();
+
+        //need this variable in order for geojsons to work correctly
+        var features = null;
+        var enabled = false;
+
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             var buses = JSON.parse(this.responseText);
             var new_markers = {};
             for (var i = 0; i < buses.length; i++) {
-
             	var busID = parseInt(buses[i].vehicle);
-
             	if (busID in curr_markers) {
             		new_markers[busID] = curr_markers[busID];
             		new_markers[busID].setPosition(new google.maps.LatLng(buses[i].latitude, buses[i].longitude));
@@ -82,20 +121,49 @@
 	            	var marker = new google.maps.Marker({
 	          			position: {lat: parseFloat(buses[i].latitude), lng: parseFloat(buses[i].longitude)},
 	          			map: map,
-                  icon: "assets/BusIcon.svg"
-                });
-                var latitude = parseFloat(buses[i].latitude);
-                var longitude = parseFloat(buses[i].longitude);
-                var message = '<div><strong>' + buses[i].timepoint
-                  + '</strong><br>@ ' + buses[i].msg_time + '<br>Route '
-                  + buses[i].route + '<br>' + '(' + latitude + ' , ' + longitude
-                  + ')' + '</div>';
-                console.log(buses[i]);
-                attachInfo(marker, message);
+                  icon: 'assets/BusIcon.svg'
+	                });
+
+	            	//each marker has a listener
+	                marker.addListener('click', function() {
+			    		if (features != null) {
+			    			for (var i = 0; i < features.length; i++)
+			   		     		map.data.remove(features[i]);
+			    		}
+
+
+			    		//Replace the url below with the database call
+			    		//I think you'll have to format the url string yourself using the marker's position data
+              if (enabled) {
+  			    		$.getJSON('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/atlanta.geojson', function (data) {
+  			    			features = map.data.addGeoJson(data);
+  			    		});
+              }
+			    	});
+
+	                var latitude = parseFloat(buses[i].latitude);
+	                var longitude = parseFloat(buses[i].longitude);
+
+                  var messageColor = parseInt(buses[i].adherence) < 0 ? '236, 37, 39' : '105,189,71';
+	                var message = '<div><strong>' + buses[i].timepoint
+	                  + '</strong><br>@ ' + buses[i].msg_time + '<br>Route '
+	                  + buses[i].route + '<br>' + '(' + latitude + ' , ' + longitude
+	                  + ')' + '<br><br>'
+                    + '<svg height="12" width="200">'
+                    + '<line x1="0" y1="0" x2="200" y2="0" style='
+                    + '"stroke:rgb(' + messageColor + ');stroke-width:10" />'
+                    + '</svg>'
+                    + '</div>';
+
+	                // console.log(buses[i]);
+
+	                attachInfo(marker, message);
+
             		new_markers[busID] = marker;
             	}
               delete curr_markers[busID];
             }
+
             var remove_list = Object.keys(curr_markers);
             for (var i = 0; i < remove_list.length; i++) {
 	          	curr_markers[remove_list[i]].setMap(null);
@@ -104,8 +172,39 @@
             curr_markers = new_markers;
           }
         };
+
+        //Test marker to see if clickable action worked, not necessary anymore
+        // myLatlng = {lat: 33.7490, lng: -84.3880};
+
+        // var marker = new google.maps.Marker({
+        //   position: myLatlng,
+        //   map: map
+        // });
+
+    	//added remove button in case the user doens't want to see any geojsons displayed
+    	google.maps.event.addDomListener(document.getElementById('removeBtn'), 'click', function () {
+    		if (features != null) {
+    			for (var i = 0; i < features.length; i++)
+   		    		map.data.remove(features[i]);
+    		}
+    	});
+
+      google.maps.event.addDomListener(document.getElementById('enable'), 'click', function () {
+        enabled = !enabled;
+    	});
+
+        map.data.setStyle({
+          icon: 'atlanta.json',
+          strokeColor: '#ffa500',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#ffa500',
+          fillOpacity: 0.35
+        });
+
         xhttp.open("GET", "http://localhost:5000/get_buses", true);
         xhttp.send();
+
 
         var colors = ['#ec2527', '#ffa500', '#0093d0', '#69bd47'];
 
@@ -138,6 +237,7 @@
   	      xhttp.open("GET", "http://localhost:5000/get_buses", true);
           xhttp.send();
         };
+
         var attachInfo = function(marker, info) {
           google.maps.event.addListener(marker, 'click', function() {
             infowindow.setContent(info);
@@ -145,11 +245,12 @@
           });
         };
 
+        //not sure what this does
         var getDistance = function(start_long, start_lat, end_long, end_lat) {
             // Option 1
             url = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
             url += 'origins=' + start_long + ',' + start_lat + '&destinations='
-                + end_long + ',' + end_lat + '&key=' + key;
+                + end_long + ',' + end_lat + '&key=' + 'AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU';
             r = requests.get(url);
             js = r.json();
 
@@ -171,7 +272,7 @@
     </script>
 
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=[API-KEY]&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpWRyIAxW2rc8HgZssAWARXef2c7qEGgU&callback=initMap">
   </script>
     </body>
   </html>
