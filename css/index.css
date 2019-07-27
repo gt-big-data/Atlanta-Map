@@ -1,5 +1,17 @@
+#headerMarta {
+ height: 60px;
+}
+
+#wrapper {
+  position: absolute;
+  top: 60px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
 #map {
- height: 500px;
+ min-height: 100%;
  width: 100%;
 }
 
@@ -7,7 +19,7 @@
   background-color: #0c0c0c;
   border: none;
   color: white;
-  padding: 15px 32px;
+  padding: 8px 25px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
